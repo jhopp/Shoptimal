@@ -1,0 +1,32 @@
+{
+  "Shops": [
+    {
+      "Name": "Lidl",
+      "Location": "Oldstreet",
+      "Catalogue": [
+        {
+          "ItemName": "Bread",
+          "ItemPrice": 0.67
+        },
+        {
+          "ItemName": "Milk",
+          "ItemPrice": 0.74
+        }
+      ]
+    },
+    {
+      "Name": "Aldi",
+      "Location": "Bakerstreet",
+      "Catalogue": [
+        {
+          "ItemName": "Cheese",
+          "ItemPrice": 1.42
+        },
+        {
+          "ItemName": "Egg",
+          "ItemPrice": 0.41
+        }
+      ]
+    }
+  ]
+}
