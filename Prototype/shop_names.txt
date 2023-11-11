@@ -1,0 +1,8 @@
+Tesco
+Asda
+Lidl
+Sainsburys
+Waitrose
+Aldi
+Poundland
+Shamland
