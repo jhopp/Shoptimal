@@ -12,13 +12,13 @@ class Schedule:
     def __init__(self, shop_decisions: list[ShopDecision]) -> None:
         self.shop_decisions = shop_decisions
 
-    def to_itemset(self) -> set(str):
+    def to_itemset(self) -> set[str]:
         """
         Returns set of items purchased.
         """
         return set([decision.item_name for decision in self.shop_decisions])
     
-    def to_itemdict(self) -> dict(str, int):
+    def to_itemdict(self) -> dict[str, int]:
         """
         Returns dictionary of (item_name, quantity purchased).
         """

@@ -37,6 +37,17 @@ class InputData:
         shops = cls.get_shops(path)
         items = cls.get_items(path)
         return InputData(shops, items)
+    
+    def unavailable_items(self) -> list[str]:
+        """
+        Returns names of items not available in any shops.
+        """
+        items = []
+        for item in self.items:
+            available_in = [item.name in shop.available_products() for shop in self.shops]
+            if not any(available_in):
+                items.append(item)
+        return items
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"

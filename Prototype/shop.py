@@ -10,5 +10,9 @@ class Shop:
         self.price_by_product = price_by_product
         self.stock_by_product = stock_by_product
 
+    def available_products(self) -> set[str]:
+        products = [product_name for product_name in self.price_by_product.keys()]
+        return set(products)
+
     def __repr__(self) -> str:
         return f"{self.name}: {self.price_by_product}"

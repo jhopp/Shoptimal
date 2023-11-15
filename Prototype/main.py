@@ -7,3 +7,4 @@ if __name__ == '__main__':
 
     input_data = InputData.from_csv('')
     print(input_data)
+    print(input_data.unavailable_items())
