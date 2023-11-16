@@ -11,8 +11,8 @@ MAX_ITEM_QUANT = 10
 
 class DataGenerator:
     def __init__(self, shop_names_file: str, product_names_file:str, **params) -> None:
-        self.shop_names = open(shop_names_file).read().split('\n') # add close
-        self.product_names= open(product_names_file).read().split('\n') # add close
+        self.shop_names = open('input/' + shop_names_file).read().split('\n') # add close
+        self.product_names= open('input/' + product_names_file).read().split('\n') # add close
         self._PRICE_RANGE = params.get('price_range', PRICE_RANGE)
         self._STOCK_RANGE = params.get('stock_range', STOCK_RANGE)
         self._LOC_RANGE = params.get('loc_range', LOC_RANGE)
@@ -62,8 +62,8 @@ class DataGenerator:
         Generates data for products, shops, and items, and writes the data to csv files.
         """
         product_data = self.generate_product_data()
-        product_data.to_csv("product_data.csv", header=False, index=False)
+        product_data.to_csv("input/product_data.csv", header=False, index=False)
         shop_data = self.generate_shop_data()
-        shop_data.to_csv("shop_data.csv", header=False, index=False)
+        shop_data.to_csv("input/shop_data.csv", header=False, index=False)
         item_data = self.generate_item_data()
-        item_data.to_csv("item_data.csv", header=False, index=False)
+        item_data.to_csv("input/item_data.csv", header=False, index=False)
