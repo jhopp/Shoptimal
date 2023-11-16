@@ -17,7 +17,7 @@ class ScheduleChecker(ABC):
 class AllItemsArePurchased(ScheduleChecker):
     def check(self) -> bool:
         """
-        Checks that all wafers have been scheduled.
+        Checks that all items have been purchased.
         """
         item_set = self._schedule.to_itemset()
         for item in self._input_data.items:

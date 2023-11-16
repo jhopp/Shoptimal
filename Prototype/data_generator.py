@@ -48,7 +48,7 @@ class DataGenerator:
             shop_data.append((name, (x,y)))
         return pd.DataFrame(shop_data)
     
-    def generate_item_data(self):
+    def generate_item_data(self): # BUG: can currently pick the same item multiple times
         """
         Generates and returns a Dataframe of item data.
         Format: (product_name, quantity)

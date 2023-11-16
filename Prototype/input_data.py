@@ -13,7 +13,7 @@ class InputData:
         self.shops = shops
         self.items = items # shopping list
 
-    def get_shops(path: str) -> list[Shop]:
+    def _get_shops(path: str) -> list[Shop]:
         shop_data = pd.read_csv(path + 'shop_data.csv', header=None, index_col=False)
         shop_list = [Shop(name, loc, {}, {}) for name, loc in shop_data.to_numpy()]
         shops = dict([(shop.name, shop) for shop in shop_list])
@@ -27,15 +27,15 @@ class InputData:
                 raise Exception("Encountered unknown shop name")
         return list(shops.values())
     
-    def get_items(path: str) -> list[Item]:
+    def _get_items(path: str) -> list[Item]:
         item_data = pd.read_csv(path + 'item_data.csv')
         items = [Item(name, quantity) for (name, quantity) in item_data.values]
         return items
 
     @classmethod
     def from_csv(cls, path: str):
-        shops = cls.get_shops(path)
-        items = cls.get_items(path)
+        shops = cls._get_shops(path)
+        items = cls._get_items(path)
         return InputData(shops, items)
     
     def unavailable_items(self) -> list[str]:
