@@ -1,12 +1,15 @@
+from item import Item
+from shop import Shop
+
 
 class ShopDecision:
-    def __init__(self, item_name: str, shop_name: str) -> None:
-        self.item_name = item_name
-        self.shop_name = shop_name
+    def __init__(self, item: Item, shop: Shop) -> None:
+        self.item = item
+        self.shop = shop
         self.quantity = 1 # pass this as argument when item quantities are implemented
 
     def __repr__(self) -> str:
-        return f"{self.shop_name}: {self.item_name}"
+        return f"{self.shop.name}: {self.item.name}"
 
 class Schedule:
     def __init__(self, shop_decisions: list[ShopDecision]) -> None:
@@ -14,9 +17,9 @@ class Schedule:
 
     def to_itemset(self) -> set[str]:
         """
-        Returns set of items purchased.
+        Returns set of names of items purchased.
         """
-        return set([decision.item_name for decision in self.shop_decisions])
+        return set([decision.item.name for decision in self.shop_decisions])
     
     def to_itemdict(self) -> dict[str, int]:
         """

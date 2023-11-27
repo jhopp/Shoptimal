@@ -22,7 +22,7 @@ class BasicScheduler(Scheduler):
             for item in self._input_data.items:
                 if item.name in shop.available_products() and item.name not in scheduled_items:
                     scheduled_items.add(item.name)
-                    shop_decisions.append(ShopDecision(item.name, shop.name))
+                    shop_decisions.append(ShopDecision(item, shop))
             if len(shop_decisions) >= len(self._input_data.items):
                 break
         return Schedule(shop_decisions)
