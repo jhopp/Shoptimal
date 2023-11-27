@@ -12,3 +12,5 @@ if __name__ == '__main__':
 
     schedule = BasicScheduler(input_data).schedule()
     print(schedule)
+    print(round(schedule.cost, 2))
+    

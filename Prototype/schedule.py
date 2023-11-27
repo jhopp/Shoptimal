@@ -41,7 +41,10 @@ class Schedule:
         -------
         float : Schedule's cost in monetary units
         """
-        return 1.0
+        total_cost = 0
+        for decision in self.shop_decisions:
+            total_cost += decision.shop.price_by_product[decision.item.name] # multiply by quantity once implemented
+        return total_cost
 
     @property
     def total_distance(self) -> float:
