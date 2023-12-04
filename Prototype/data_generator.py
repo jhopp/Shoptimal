@@ -45,7 +45,7 @@ class DataGenerator:
         for name in self.shop_names:
             x = round(rnd.uniform(self._LOC_RANGE[0], self._LOC_RANGE[1]), 4)
             y = round(rnd.uniform(self._LOC_RANGE[0], self._LOC_RANGE[1]), 4)
-            shop_data.append((name, (x,y)))
+            shop_data.append((name, x, y))
         return pd.DataFrame(shop_data)
     
     def generate_item_data(self): # BUG: can currently pick the same item multiple times

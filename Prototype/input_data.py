@@ -15,7 +15,7 @@ class InputData:
 
     def _get_shops(path: str) -> list[Shop]:
         shop_data = pd.read_csv(path + 'shop_data.csv', header=None, index_col=False)
-        shop_list = [Shop(name, loc, {}, {}) for name, loc in shop_data.to_numpy()]
+        shop_list = [Shop(name, (loc_x, loc_y), {}, {}) for name, loc_x, loc_y in shop_data.to_numpy()]
         shops = dict([(shop.name, shop) for shop in shop_list])
 
         product_data = pd.read_csv(path + 'product_data.csv')
@@ -48,6 +48,18 @@ class InputData:
             if not any(available_in):
                 items.append(item)
         return items
+
+    def shop_distances(self) -> dict[(str, str), float]:
+        """
+        Returns dictionary of distances between shops: (from, to).
+        """
+        distances = {}
+        for shop1 in self.shops:
+            for shop2 in self.shops:
+                if (shop1.name, shop2.name) not in distances:
+                    distances[(shop1.name, shop2.name)] = round(shop1.euclidian_distance(shop2), 4)
+                    distances[(shop2.name, shop1.name)] = distances[(shop1.name, shop2.name)]
+        return distances
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"

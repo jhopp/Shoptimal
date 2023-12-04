@@ -9,6 +9,7 @@ if __name__ == '__main__':
     input_data = InputData.from_csv('input/')
     print(input_data)
     print(input_data.unavailable_items())
+    print(input_data.shop_distances())
 
     schedule = BasicScheduler(input_data).schedule()
     print(schedule)
