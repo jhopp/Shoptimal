@@ -54,7 +54,12 @@ class Schedule:
         -------
         float : Schedule's distance traveled in distance units
         """
-        return 1.0
+        distance = 0
+        previous_shop = self.shop_decisions[0].shop
+        for decision in self.shop_decisions:
+            distance += previous_shop.euclidian_distance(decision.shop)
+            previous_shop = decision.shop
+        return distance
 
     def __repr__(self) -> str:
         return f"{self.shop_decisions}"
