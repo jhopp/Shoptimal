@@ -25,6 +25,16 @@ class AllItemsArePurchased(ScheduleChecker):
                 return False
         return True
 
+class AllPurchasesAreValid(ScheduleChecker):
+    def check(self) -> bool:
+        """
+        Checks that all items are purchased at a shop that sells that item.
+        """
+        for decision in self._schedule.shop_decisions:
+            if decision.item not in decision.shop.available_products():
+                return False
+        return True
+
 class ScheduleValidator:
     def __init__(self, input_data: InputData, schedule: Schedule):
         self._input_data = input_data
