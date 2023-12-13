@@ -31,7 +31,7 @@ class AllPurchasesAreValid(ScheduleChecker):
         Checks that all items are purchased at a shop that sells that item.
         """
         for decision in self._schedule.shop_decisions:
-            if decision.item not in decision.shop.available_products():
+            if decision.item.name not in decision.shop.available_products():
                 return False
         return True
 
@@ -40,7 +40,8 @@ class ScheduleValidator:
         self._input_data = input_data
         self._schedule = schedule
         self._checker_classes = [
-            AllItemsArePurchased
+            AllItemsArePurchased,
+            AllPurchasesAreValid
         ]
 
     def validate(self) -> None:

@@ -1,6 +1,7 @@
 from input_data import InputData
 from data_generator import DataGenerator
 from schedulers import BasicScheduler
+from validators import ScheduleValidator
 
 if __name__ == '__main__':
     data_generator = DataGenerator('shop_names.txt', 'product_names.txt')
@@ -15,4 +16,6 @@ if __name__ == '__main__':
     print(schedule)
     print(f"Cost: {round(schedule.cost, 2)}")
     print(f"Distance: {round(schedule.total_distance, 2)}")
+
+    ScheduleValidator(input_data, schedule).validate()
     
