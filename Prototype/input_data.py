@@ -3,16 +3,22 @@ from item import Item
 import pandas as pd
 
 class InputData:
-    def __init__(self, shops: list[Shop], items: list[Item]) -> None:
+    def __init__(self, origin: (float, float), shops: list[Shop], items: list[Item]) -> None:
         """
+        origin: (float, float)
+            Start- and end location of user.
         shops: list[Shop]
             List of shops from which items can be purchased.
         items: list[Item]
             List of items to be purchased; the shopping list.
         """
+        self.origin = origin
         self.shops = shops
         self.items = items # shopping list
 
+    def _get_origin(path: str) -> (float, float):
+        return (50, 50)
+    
     def _get_shops(path: str) -> list[Shop]:
         shop_data = pd.read_csv(path + 'shop_data.csv', header=None, index_col=False)
         shop_list = [Shop(name, (loc_x, loc_y), {}, {}) for name, loc_x, loc_y in shop_data.to_numpy()]
@@ -34,9 +40,10 @@ class InputData:
 
     @classmethod
     def from_csv(cls, path: str):
+        origin = cls._get_origin(path)
         shops = cls._get_shops(path)
         items = cls._get_items(path)
-        return InputData(shops, items)
+        return InputData(origin, shops, items)
     
     def unavailable_items(self) -> list[str]:
         """

@@ -25,4 +25,4 @@ class BasicScheduler(Scheduler):
                     shop_decisions.append(ShopDecision(item, shop))
             if len(shop_decisions) >= len(self._input_data.items):
                 break
-        return Schedule(shop_decisions)
+        return Schedule(self._input_data.origin, shop_decisions)

@@ -12,7 +12,8 @@ class ShopDecision:
         return f"{self.shop.name}: {self.item.name}"
 
 class Schedule:
-    def __init__(self, shop_decisions: list[ShopDecision]) -> None:
+    def __init__(self, origin: (float, float), shop_decisions: list[ShopDecision]) -> None:
+        self.origin = origin
         self.shop_decisions = shop_decisions
 
     def to_itemset(self) -> set[str]:
@@ -56,9 +57,11 @@ class Schedule:
         """
         distance = 0
         previous_shop = self.shop_decisions[0].shop
+        distance += Shop("origin", self.origin, {}, {}).euclidian_distance(previous_shop)
         for decision in self.shop_decisions:
             distance += previous_shop.euclidian_distance(decision.shop)
             previous_shop = decision.shop
+        distance += previous_shop.euclidian_distance(Shop("origin", self.origin, {}, {}))
         return distance
 
     def __repr__(self) -> str:
