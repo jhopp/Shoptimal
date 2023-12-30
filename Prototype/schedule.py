@@ -57,11 +57,11 @@ class Schedule:
         """
         distance = 0
         previous_shop = self.shop_decisions[0].shop
-        distance += Shop("origin", self.origin, {}, {}).euclidian_distance(previous_shop)
+        distance += previous_shop.euclidian_distance(self.origin)
         for decision in self.shop_decisions:
             distance += previous_shop.euclidian_distance(decision.shop)
             previous_shop = decision.shop
-        distance += previous_shop.euclidian_distance(Shop("origin", self.origin, {}, {}))
+        distance += previous_shop.euclidian_distance(self.origin)
         return distance
 
     def __repr__(self) -> str:

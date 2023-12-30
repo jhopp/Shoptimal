@@ -14,10 +14,10 @@ class Shop:
     def available_products(self) -> set[str]:
         products = [product_name for product_name in self.price_by_product.keys()]
         return set(products)
-    
-    def euclidian_distance(self, other_shop) -> float:
+
+    def euclidian_distance(self, other) -> float:
         (x1, y1) = self.location
-        (x2, y2) = other_shop.location
+        (x2, y2) = other.location if type(other) == Shop else other
         return sqrt((pow(x1 - x2, 2) + pow(y1 - y2, 2)))
 
     def __repr__(self) -> str:
