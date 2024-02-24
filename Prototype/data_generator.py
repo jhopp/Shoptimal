@@ -5,7 +5,7 @@ import random as rnd
 PRICE_RANGE = (0.1, 20.0)
 STOCK_RANGE = (1, 50)
 LOC_RANGE = (0, 100)
-NUM_PRODUCTS = 100
+NUM_PRODUCTS = 150
 NUM_ITEMS = 12
 MAX_ITEM_QUANT = 10
 
@@ -27,13 +27,16 @@ class DataGenerator:
         Generates and returns a DataFrame of product data.
         Format: (shop_name, product_name, price, stock)
         """
+        shops = self.shop_names.copy()
+        shops.remove("origin")
         product_data = [(
-            rnd.choice(self.shop_names),
+            rnd.choice(shops),
             rnd.choice(self.product_names),
             round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2),
             rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1]))
             for _ in range(self.num_products)
         ]
+        product_data.append(("origin", "originsauce", 0.01, 1)) # add unique product to force origin visit
         return pd.DataFrame(product_data)
     
     def generate_shop_data(self):
@@ -55,6 +58,7 @@ class DataGenerator:
         """
         items = rnd.sample(self.product_names, k=self.num_items)
         item_data = [(name, rnd.randint(1, MAX_ITEM_QUANT)) for name in items]
+        item_data.append(("originsauce", 1)) # add unique item to force origin visit
         return pd.DataFrame(item_data)
 
     def to_csv(self):

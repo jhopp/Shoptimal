@@ -12,7 +12,7 @@ class ShopDecision:
         return f"{self.shop.name}: {self.item.name}"
 
 class Schedule:
-    def __init__(self, origin: (float, float), shop_decisions: list[ShopDecision]) -> None:
+    def __init__(self, origin: tuple[float, float], shop_decisions: list[ShopDecision]) -> None:
         self.origin = origin
         self.shop_decisions = shop_decisions
 

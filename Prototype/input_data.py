@@ -3,7 +3,7 @@ from item import Item
 import pandas as pd
 
 class InputData:
-    def __init__(self, origin: (float, float), shops: list[Shop], items: list[Item]) -> None:
+    def __init__(self, origin: tuple[float, float], shops: list[Shop], items: list[Item]) -> None:
         """
         origin: (float, float)
             Start- and end location of user.
@@ -16,13 +16,15 @@ class InputData:
         self.shops = shops
         self.items = items # shopping list
 
-    def _get_origin(path: str) -> (float, float):
+    def _get_origin(path: str) -> tuple[float, float]:
         return (50, 50)
     
-    def _get_shops(path: str) -> list[Shop]:
+    def _get_shops(path: str, origin: tuple[float, float]) -> list[Shop]:
         shop_data = pd.read_csv(path + 'shop_data.csv', header=None, index_col=False)
         shop_list = [Shop(name, (loc_x, loc_y), {}, {}) for name, loc_x, loc_y in shop_data.to_numpy()]
         shops = dict([(shop.name, shop) for shop in shop_list])
+
+        shops["origin"].location = origin # update origin location
 
         product_data = pd.read_csv(path + 'product_data.csv')
         for (shop_name, product_name, price, stock) in product_data.to_numpy():
@@ -41,7 +43,7 @@ class InputData:
     @classmethod
     def from_csv(cls, path: str):
         origin = cls._get_origin(path)
-        shops = cls._get_shops(path)
+        shops = cls._get_shops(path, origin)
         items = cls._get_items(path)
         return InputData(origin, shops, items)
     
