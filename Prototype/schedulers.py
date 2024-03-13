@@ -36,12 +36,13 @@ class Model1Scheduler(Scheduler):
     def schedule(self, kpi1, kpi2) -> Schedule:
         model = simple_model(self._input_data, kpi1, kpi2)
         #model.parameters.timelimit = 5
+        model.round_solution = True
         msol = model.solve()
 
         num_items = len(self._input_data.items)
         num_shops = len(self._input_data.shops)
 
-        model.print_solution()
+        #model.print_solution()
 
         shop_decisions = []
         current_shop = 0 # start at origin (index 0)
