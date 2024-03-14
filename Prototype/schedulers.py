@@ -21,6 +21,7 @@ class BasicScheduler(Scheduler):
         scheduled_items = set()
         shop_decisions = []
         for shop in self._input_data.shops:
+            if shop.name == "origin": continue
             for item in self._input_data.items:
                 if item.name in shop.available_products() and item.name not in scheduled_items:
                     scheduled_items.add(item.name)
@@ -50,21 +51,21 @@ class Model1Scheduler(Scheduler):
 
         while shops_visited <= num_shops: # continue until back at origin (at most all shops)
             shops_visited += 1
+
             # add current shop items
-            for i in range(num_items):
-                if msol.get_value(f"x_{i}_{current_shop}") == 1:
-                    shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
+            if current_shop != 0:
+                for i in range(num_items):
+                    if msol.get_value(f"x_{i}_{current_shop}") == 1:
+                        shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
 
             # set next shop
             for next_shop in range(num_shops):
-                if next_shop == current_shop:
-                    continue
                 if msol.get_value(f"e_{current_shop}_{next_shop}") == 1:
                     current_shop = next_shop
                     break
   
-            # terminate loop if new current shop is origin
-            if current_shop == 0:
-                shops_visited = num_shops # run one more iteration to add origin as final decision
-            
+            # terminate loop if at origin again
+            if current_shop == 0 and len(shop_decisions) > 0:
+                break
+
         return Schedule(self._input_data.origin, shop_decisions)

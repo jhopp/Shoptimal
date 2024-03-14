@@ -55,9 +55,8 @@ class Schedule:
         -------
         float : Schedule's distance traveled in distance units
         """
-        distance = 0
         previous_shop = self.shop_decisions[0].shop
-        distance += previous_shop.euclidian_distance(self.origin)
+        distance = previous_shop.euclidian_distance(self.origin)
         for decision in self.shop_decisions:
             distance += previous_shop.euclidian_distance(decision.shop)
             previous_shop = decision.shop

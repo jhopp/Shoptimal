@@ -21,6 +21,7 @@ class AllItemsArePurchased(ScheduleChecker):
         """
         item_set = self._schedule.to_itemset()
         for item in self._input_data.items:
+            if item.name == "originsauce": continue
             if item.name not in item_set:
                 return False
         return True
