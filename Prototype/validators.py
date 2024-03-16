@@ -36,13 +36,33 @@ class AllPurchasesAreValid(ScheduleChecker):
                 return False
         return True
 
+class ShopsAreVisitedOnce(ScheduleChecker):
+    def check(self) -> bool:
+        """
+        Checks that shops are only visited once.
+        This means shopdecisions at some shop should be in sequence.
+        Passing this check is not required for a schedule to be valid.
+        """
+        visited = set()
+        prev_shop = None
+        for decision in self._schedule.shop_decisions:
+            name = decision.shop.name
+            if name == prev_shop:
+                continue
+            if name in visited:
+                return False
+            visited.add(name)
+            prev_shop = name
+        return True
+
 class ScheduleValidator:
     def __init__(self, input_data: InputData, schedule: Schedule):
         self._input_data = input_data
         self._schedule = schedule
         self._checker_classes = [
             AllItemsArePurchased,
-            AllPurchasesAreValid
+            AllPurchasesAreValid,
+            ShopsAreVisitedOnce
         ]
 
     def validate(self) -> None:
