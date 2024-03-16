@@ -9,12 +9,6 @@ if __name__ == '__main__':
 
     input_data = InputData.from_csv('input/')
 
-    while len(input_data.unavailable_items()) > 0: # force no unavailable items for now
-        data_generator = DataGenerator('shop_names.txt', 'product_names.txt')
-        data_generator.to_csv()
-        input_data = InputData.from_csv('input/')
-        print(input_data.unavailable_items())
-
     print(input_data)
     print(f"Unavailable: {input_data.unavailable_items()}")
     #print(input_data.shop_distances())

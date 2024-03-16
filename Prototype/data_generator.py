@@ -5,8 +5,8 @@ import random as rnd
 PRICE_RANGE = (0.1, 20.0)
 STOCK_RANGE = (1, 50)
 LOC_RANGE = (0, 100)
-NUM_PRODUCTS = 150
 NUM_ITEMS = 12
+NUM_PRODUCTS = max(150, NUM_ITEMS) # at least as many products as items
 MAX_ITEM_QUANT = 10
 
 class DataGenerator:
@@ -22,20 +22,29 @@ class DataGenerator:
     def set_num_products(self, num_products):
         self.num_products = num_products
 
-    def generate_product_data(self):
+    def generate_product_data(self, items):
         """
         Generates and returns a DataFrame of product data.
         Format: (shop_name, product_name, price, stock)
         """
         shops = self.shop_names.copy()
         shops.remove("origin")
+        # first ensure all items can be purchased somewhere
         product_data = [(
             rnd.choice(shops),
-            rnd.choice(self.product_names),
+            item,
             round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2),
             rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1]))
-            for _ in range(self.num_products)
+            for item in items if item != "originsauce"
         ]
+        # generate rest of products
+        for _ in range(self.num_products - self.num_items):
+            product_data.append((
+                rnd.choice(shops),
+                rnd.choice(self.product_names),
+                round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2),
+                rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1]))
+            )
         product_data.append(("origin", "originsauce", 0.01, 1)) # add unique product to force origin visit
         return pd.DataFrame(product_data)
     
@@ -65,9 +74,9 @@ class DataGenerator:
         """
         Generates data for products, shops, and items, and writes the data to csv files.
         """
-        product_data = self.generate_product_data()
+        item_data = self.generate_item_data()
+        item_data.to_csv("input/item_data.csv", header=False, index=False)
+        product_data = self.generate_product_data(item_data.iloc[:,0])
         product_data.to_csv("input/product_data.csv", header=False, index=False)
         shop_data = self.generate_shop_data()
         shop_data.to_csv("input/shop_data.csv", header=False, index=False)
-        item_data = self.generate_item_data()
-        item_data.to_csv("input/item_data.csv", header=False, index=False)
