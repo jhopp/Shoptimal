@@ -22,29 +22,33 @@ class DataGenerator:
     def set_num_products(self, num_products):
         self.num_products = num_products
 
-    def generate_product_data(self, items):
+    def generate_product_data(self, items, all_items_available=False):
         """
         Generates and returns a DataFrame of product data.
         Format: (shop_name, product_name, price, stock)
         """
         shops = self.shop_names.copy()
         shops.remove("origin")
-        # first ensure all items can be purchased somewhere
-        product_data = [(
-            rnd.choice(shops),
-            item,
-            round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2),
-            rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1]))
-            for item in items if item != "originsauce"
-        ]
+        product_data = []
+
+        if all_items_available:
+            # first ensure all items can be purchased somewhere
+            for item in items:
+                if item == "originsauce": continue
+                shop = rnd.choice(shops)
+                price = round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2)
+                quantity = rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1])
+                product_data.append((shop, item, price, quantity))
+
         # generate rest of products
-        for _ in range(self.num_products - self.num_items):
-            product_data.append((
-                rnd.choice(shops),
-                rnd.choice(self.product_names),
-                round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2),
-                rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1]))
-            )
+        n = self.num_products - (self.num_items if all_items_available else 0)
+        for _ in range(n):
+            shop = rnd.choice(shops)
+            item = rnd.choice(self.product_names)
+            price = round(rnd.uniform(self._PRICE_RANGE[0], self._PRICE_RANGE[1]), 2)
+            quantity = rnd.randrange(self._STOCK_RANGE[0], self._STOCK_RANGE[1])
+            product_data.append((shop, item, price, quantity))
+        
         product_data.append(("origin", "originsauce", 0.01, 1)) # add unique product to force origin visit
         return pd.DataFrame(product_data)
     
@@ -70,13 +74,13 @@ class DataGenerator:
         item_data.append(("originsauce", 1)) # add unique item to force origin visit
         return pd.DataFrame(item_data)
 
-    def to_csv(self):
+    def to_csv(self, all_items_available):
         """
         Generates data for products, shops, and items, and writes the data to csv files.
         """
         item_data = self.generate_item_data()
         item_data.to_csv("input/item_data.csv", header=False, index=False)
-        product_data = self.generate_product_data(item_data.iloc[:,0])
+        product_data = self.generate_product_data(item_data.iloc[:,0], all_items_available)
         product_data.to_csv("input/product_data.csv", header=False, index=False)
         shop_data = self.generate_shop_data()
         shop_data.to_csv("input/shop_data.csv", header=False, index=False)

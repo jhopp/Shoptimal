@@ -5,7 +5,7 @@ from validators import ScheduleValidator
 
 if __name__ == '__main__':
     data_generator = DataGenerator('shop_names.txt', 'product_names.txt')
-    data_generator.to_csv()
+    data_generator.to_csv(all_items_available=True)
 
     input_data = InputData.from_csv('input/')
 
