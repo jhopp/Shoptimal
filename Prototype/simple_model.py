@@ -54,15 +54,10 @@ def simple_model(input_data, kpi1, kpi2):
      simple_model.add_constraints((sum(x[i,j] for i in i_labels) <= 1000 * s[j] for j in s_labels))
 
      # each visited shop is traveled to
-     simple_model.add_constraints(sum(e[k,j] for k in s_labels) >= s[j] for j in s_labels)
-     #simple_model.add_constraints(sum(e[j,k] for k in s_labels) >= s[j] for j in s_labels)
+     simple_model.add_constraints(sum(e[k,j] for k in s_labels if k != j) >= s[j] for j in s_labels)
 
      # each traveled from shop is visited
-     simple_model.add_constraints(sum(e[k,j] for j in s_labels) <= s[k] for k in s_labels)
-     #simple_model.add_constraints(sum(e[j,k] for j in s_labels) <= s[k] for k in s_labels)
-
-     # no self-loops
-     simple_model.add_constraints(e[j,j] <= 0 for j in s_labels)
+     simple_model.add_constraints(sum(e[k,j] for j in s_labels if j != k) <= s[k] for k in s_labels)
 
      # enforce proper tour
      simple_model.add_constraints(u[k] - u[j] + 1 <= (num_shops - 2) * (1 - e[k,j]) for k in s_labels  if k > 0 for j in s_labels)
