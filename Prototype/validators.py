@@ -25,6 +25,18 @@ class AllItemsArePurchased(ScheduleChecker):
             if item.name not in item_set:
                 return False
         return True
+    
+class AllPurchasesAreItems(ScheduleChecker):
+    def check(self) -> bool:
+        """
+        Checks that are purchased items were on the list.
+        """
+        purchased_items = self._schedule.to_itemset()
+        shopping_list = [item.name for item in self._input_data.items]
+        for item in purchased_items:
+            if item not in shopping_list:
+                return False
+        return True      
 
 class AllPurchasesAreValid(ScheduleChecker):
     def check(self) -> bool:
@@ -61,6 +73,7 @@ class ScheduleValidator:
         self._schedule = schedule
         self._checker_classes = [
             AllItemsArePurchased,
+            AllPurchasesAreItems,
             AllPurchasesAreValid,
             ShopsAreVisitedOnce
         ]
