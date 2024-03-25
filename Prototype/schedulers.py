@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from schedule import Schedule, ShopDecision
 from input_data import InputData
 from simple_model import simple_model
+from math import inf
 
 
 class Scheduler(ABC):
@@ -29,6 +30,26 @@ class BasicScheduler(Scheduler):
             if len(shop_decisions) >= len(self._input_data.items):
                 break
         return Schedule(self._input_data.origin, shop_decisions)
+
+class BestPriceScheduler(Scheduler):
+    """
+    Creates a schedule that has minimal cost.
+    Does not take distance into account.
+    """
+    def schedule(self) -> Schedule:
+        shop_decisions = []
+        for item in self._input_data.items:
+            if item.name == "originsauce": continue
+            cheapest_shop = None
+            best_price = inf
+            for shop in self._input_data.shops:
+                if shop.get_price(item.name) == None:
+                    continue
+                if shop.get_price(item.name) < best_price:
+                    cheapest_shop = shop
+                    best_price = shop.get_price(item.name)
+            shop_decisions.append(ShopDecision(item, cheapest_shop))
+        return Schedule(self._input_data.origin, sorted(shop_decisions, key= lambda x: x.shop.name))
     
 class Model1Scheduler(Scheduler):
     """
