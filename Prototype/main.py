@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print(f"Distance: {round(cheap_schedule.total_distance, 2)}")
     ScheduleValidator(input_data, cheap_schedule).validate()
 
-    model1_schedule = Model1Scheduler(input_data).schedule(0.5,0.5)
+    model1_schedule = Model1Scheduler(input_data).schedule(kpi_cost=1,kpi_distance=1)
     print(model1_schedule)
     print(f"Cost: {round(model1_schedule.cost, 2)}")
     print(f"Distance: {round(model1_schedule.total_distance, 2)}")

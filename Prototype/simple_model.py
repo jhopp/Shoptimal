@@ -1,6 +1,6 @@
 from docplex.mp.model import Model    
 
-def simple_model(input_data, kpi1, kpi2):
+def simple_model(input_data, kpi_cost, kpi_distance):
      """
      Simple DOcplex model for scheduling shopping tour.
      -----
@@ -40,15 +40,18 @@ def simple_model(input_data, kpi1, kpi2):
           for s in shops] 
           for i in items]
         
-     # distances: d_kj is the distance from shop kj to shop j
+     # distances: d_kj is the distance from shop k to shop j
      d = [[shop_dist[(k.name, j.name)] for k in shops] for j in shops]
 
      # objective function: minimize cost
-     obj_func = sum( sum(p[i][j] * x[i,j] for i in i_labels) + sum(d[k][j] * e[k,j] for k in s_labels) for j in s_labels)
+     obj_func = sum( kpi_cost * sum(p[i][j] * x[i,j] for i in i_labels) + kpi_distance * sum(d[k][j] * e[k,j] for k in s_labels) for j in s_labels)
      simple_model.set_objective(sense = 'min', expr = obj_func)
         
      # every item is purchased
      simple_model.add_constraints((sum(x[i,j] for j in s_labels) >= 1 for i in i_labels))
+
+     # no purchase costs M or more (only valid purchases)
+     simple_model.add_constraints(sum(x[i,j] * p[i][j] for j in s_labels) <= M - 1 for i in i_labels)
 
      # each used shop is visited
      simple_model.add_constraints((sum(x[i,j] for i in i_labels) <= 1000 * s[j] for j in s_labels))

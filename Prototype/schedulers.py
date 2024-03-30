@@ -53,10 +53,10 @@ class BestPriceScheduler(Scheduler):
     
 class Model1Scheduler(Scheduler):
     """
-    Schedules using simple_model
+    Schedules using simple_model.
     """  
-    def schedule(self, kpi1, kpi2) -> Schedule:
-        model = simple_model(self._input_data, kpi1, kpi2)
+    def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
+        model = simple_model(self._input_data, kpi_cost, kpi_distance)
         #model.parameters.timelimit = 5
         model.round_solution = True
         msol = model.solve()
