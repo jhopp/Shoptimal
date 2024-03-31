@@ -1,9 +1,10 @@
 from shop import Shop
 from item import Item
+from route import Route
 import pandas as pd
 
 class InputData:
-    def __init__(self, origin: tuple[float, float], shops: list[Shop], items: list[Item]) -> None:
+    def __init__(self, origin: tuple[float, float], shops: list[Shop], items: list[Item], routes: list[Route]) -> None:
         """
         origin: (float, float)
             Start- and end location of user.
@@ -15,6 +16,7 @@ class InputData:
         self.origin = origin
         self.shops = shops
         self.items = items # shopping list
+        self.routes = routes
 
     def _get_origin(path: str) -> tuple[float, float]:
         return (50, 50)
@@ -40,12 +42,18 @@ class InputData:
         items = [Item(name, quantity) for (name, quantity) in item_data.values]
         return items
 
+    def _get_routes(path: str) -> list[Route]:
+        route_data = pd.read_csv(path + 'route_data.csv')
+        routes = [Route(shop_from, shop_to, time, cost) for (shop_from, shop_to, time, cost) in route_data.values]
+        return routes
+
     @classmethod
     def from_csv(cls, path: str):
         origin = cls._get_origin(path)
         shops = cls._get_shops(path, origin)
         items = cls._get_items(path)
-        return InputData(origin, shops, items)
+        routes = cls._get_routes(path)
+        return InputData(origin, shops, items, routes)
     
     def unavailable_items(self) -> list[str]:
         """
