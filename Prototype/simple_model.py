@@ -1,4 +1,5 @@
-from docplex.mp.model import Model    
+from docplex.mp.model import Model
+from constants import M
 
 def simple_model(input_data, kpi_cost, kpi_distance):
      """
@@ -32,8 +33,6 @@ def simple_model(input_data, kpi_cost, kpi_distance):
 
      # shop visit order
      u = simple_model.integer_var_list(keys=s_labels, ub = num_shops - 1, name = "u")
-
-     M = 120 * 10000 # a very large number!
 
      # product prices: p_ij is the price of product i at shop j, or M if not valid
      p = [[(s.price_by_product[i.name] if i.name in s.available_products() else M) 
