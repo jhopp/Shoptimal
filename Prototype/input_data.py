@@ -28,7 +28,7 @@ class InputData:
 
         shops["origin"].location = origin # update origin location
 
-        product_data = pd.read_csv(path + 'product_data.csv')
+        product_data = pd.read_csv(path + 'product_data.csv', header=None, index_col=False)
         for (shop_name, product_name, price, stock) in product_data.to_numpy():
             if shop_name in shops.keys():
                 shops[shop_name].price_by_product[product_name] = price
@@ -38,12 +38,12 @@ class InputData:
         return list(shops.values())
     
     def _get_items(path: str) -> list[Item]:
-        item_data = pd.read_csv(path + 'item_data.csv')
+        item_data = pd.read_csv(path + 'item_data.csv', header=None, index_col=False)
         items = [Item(name, quantity) for (name, quantity) in item_data.values]
         return items
 
     def _get_routes(path: str) -> list[Route]:
-        route_data = pd.read_csv(path + 'route_data.csv')
+        route_data = pd.read_csv(path + 'route_data.csv', header=None, index_col=False)
         routes = [Route(shop_from, shop_to, time, cost) for (shop_from, shop_to, time, cost) in route_data.values]
         return routes
 
