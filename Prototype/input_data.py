@@ -2,6 +2,7 @@ from shop import Shop
 from item import Item
 from route import Route
 import pandas as pd
+from constants import M
 
 class InputData:
     def __init__(self, origin: tuple[float, float], shops: list[Shop], items: list[Item], routes: list[Route]) -> None:
@@ -77,6 +78,43 @@ class InputData:
                     distances[(shop1.name, shop2.name)] = round(shop1.euclidian_distance(shop2), 4)
                     distances[(shop2.name, shop1.name)] = distances[(shop1.name, shop2.name)]
         return distances
+    
+    def route_times(self, eq_num_routes) -> dict[(str,str), list[float]]:
+        """
+        Returns dictionary of route times: (from, to, route_num)
+        If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
+        """
+        # add real routes to result dictionary
+        times = {}
+        for route in self.routes:
+            if (route.shop_from, route.shop_to) in times:
+                times[(route.shop_from, route.shop_to)].append(route.time)
+            else:
+                times[(route.shop_from, route.shop_to)] = [route.time]
+
+        # give all pairs an equal number of routes by adding dummies
+        if eq_num_routes:
+            max_routes = self.max_routes()
+            for route in self.routes:
+                num_routes = len(times[(route.shop_from, route.shop_to)])
+                num_add = max_routes - num_routes
+                for _ in range(num_add):
+                    times[(route.shop_from, route.shop_to)].append(M)
+        return times
+
+                
+    def max_routes(self) -> int:
+        """
+        Returns the maximum number of routes across any ordered pair of shops.
+        """
+        num_routes = dict()
+        for route in self.routes:
+            if (route.shop_from, route.shop_to) in num_routes:
+                num_routes[route.shop_from, route.shop_to] += 1
+            else:
+                num_routes[route.shop_from, route.shop_to] = 1
+        return max(num_routes.values()) 
+
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"
