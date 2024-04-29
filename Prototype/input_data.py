@@ -94,7 +94,7 @@ class InputData:
 
         # give all pairs an equal number of routes by adding dummies
         if eq_num_routes:
-            self.backfill_routes(times)
+            self.backfill_routes(times, M)
         return times
 
     def route_costs(self, eq_num_routes: bool) -> dict[(str,str), list[float]]:
@@ -112,7 +112,7 @@ class InputData:
 
         # give all pairs an equal number of routes by adding dummies
         if eq_num_routes:
-            self.backfill_routes(costs)
+            self.backfill_routes(costs, M)
         return costs
 
     def backfill_routes(self, routes: dict[(str,str), list[float]], value: int) -> None:
