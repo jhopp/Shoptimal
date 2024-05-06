@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from schedule import Schedule, ShopDecision
+from schedule import Schedule, ShopDecision, TravelDecision
 from input_data import InputData
 from simple_model import simple_model
+from model2 import model2
 from math import inf
 
 
@@ -15,21 +16,30 @@ class Scheduler(ABC):
 
 class BasicScheduler(Scheduler):
     """
-    Greedily schedules based on shop order in input data.
+    Greedily schedules based on shop and route order in input data.
     For each shop schedules all items not yet purchased.
     """
     def schedule(self) -> Schedule:
         scheduled_items = set()
         shop_decisions = []
+        travel_decisions = []
+        previous_shop = ""
         for shop in self._input_data.shops:
-            if shop.name == "origin": continue
+            # purchase all available items at current shop
+            purchase_made = False
             for item in self._input_data.items:
                 if item.name in shop.available_products() and item.name not in scheduled_items:
                     scheduled_items.add(item.name)
                     shop_decisions.append(ShopDecision(item, shop))
-            if len(shop_decisions) >= len(self._input_data.items):
-                break
-        return Schedule(self._input_data.origin, shop_decisions)
+                    purchase_made = True
+            # if a purchase was made at this shop, add traveldecision (first route found)        
+            if purchase_made:
+                for route in self._input_data.routes:
+                    if route.shop_from == previous_shop and route.shop_to == shop:
+                        travel_decisions.append(TravelDecision(route))
+                        break
+            previous_shop = shop
+        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
 
 class BestPriceScheduler(Scheduler):
     """
