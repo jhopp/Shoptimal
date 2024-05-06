@@ -1,5 +1,6 @@
 from item import Item
 from shop import Shop
+from route import Route
 
 
 class ShopDecision:
@@ -10,11 +11,19 @@ class ShopDecision:
 
     def __repr__(self) -> str:
         return f"{self.shop.name}: {self.item.name}"
+    
+class TravelDecision:
+    def __init__(self, route: Route) -> None:
+        self.route = route
+
+    def __repr__(self) -> str:
+        return f"{self.route.shop_from}: {self.route.shop_to}"
 
 class Schedule:
-    def __init__(self, origin: tuple[float, float], shop_decisions: list[ShopDecision]) -> None:
+    def __init__(self, origin: tuple[float, float], shop_decisions: list[ShopDecision], travel_decisions: list[TravelDecision]=[]) -> None:
         self.origin = origin
         self.shop_decisions = shop_decisions
+        self.travel_decisions = travel_decisions
 
     def to_itemset(self) -> set[str]:
         """
