@@ -23,7 +23,7 @@ class BasicScheduler(Scheduler):
         scheduled_items = set()
         shop_decisions = []
         travel_decisions = []
-        previous_shop = ""
+        previous_shop = "origin"
         for shop in self._input_data.shops:
             # purchase all available items at current shop
             purchase_made = False
@@ -34,11 +34,12 @@ class BasicScheduler(Scheduler):
                     purchase_made = True
             # if a purchase was made at this shop, add traveldecision (first route found)        
             if purchase_made:
-                for route in self._input_data.routes:
-                    if route.shop_from == previous_shop and route.shop_to == shop:
-                        travel_decisions.append(TravelDecision(route))
-                        break
-            previous_shop = shop
+                route = self._input_data.get_walking_route(previous_shop, shop.name)
+                travel_decisions.append(TravelDecision(route))
+            previous_shop = shop.name
+        # add travel back to origin
+        route = self._input_data.get_walking_route(previous_shop, "origin")
+        travel_decisions.append(TravelDecision(route))    
         return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
 
 class BestPriceScheduler(Scheduler):
@@ -48,6 +49,8 @@ class BestPriceScheduler(Scheduler):
     """
     def schedule(self) -> Schedule:
         shop_decisions = []
+        travel_decisions = []
+        # for each item find cheapest shop and add shopdecision
         for item in self._input_data.items:
             if item.name == "originsauce": continue
             cheapest_shop = None
@@ -59,7 +62,17 @@ class BestPriceScheduler(Scheduler):
                     cheapest_shop = shop
                     best_price = shop.get_price(item.name)
             shop_decisions.append(ShopDecision(item, cheapest_shop))
-        return Schedule(self._input_data.origin, sorted(shop_decisions, key= lambda x: x.shop.name))
+        # add traveldecisions (walking)
+        sorted_shop_decisions = sorted(shop_decisions, key= lambda x: x.shop.name)
+        previous_shop = "origin"
+        for decision in sorted_shop_decisions:
+            if previous_shop !=  decision.shop.name:
+                route = self._input_data.get_walking_route(previous_shop, decision.shop.name)
+                travel_decisions.append(TravelDecision(route))
+                previous_shop = decision.shop.name
+        route = self._input_data.get_walking_route(previous_shop, "origin")
+        travel_decisions.append(TravelDecision(route))
+        return Schedule(self._input_data.origin,sorted_shop_decisions,travel_decisions)
     
 class Model1Scheduler(Scheduler):
     """

@@ -138,6 +138,15 @@ class InputData:
                 num_routes[route.shop_from, route.shop_to] = 1
         return max(num_routes.values()) 
 
+    def get_walking_route(self, shop_from: str, shop_to: str) -> Route:
+        """
+        Returns the route from shop_from to shop_to by walking.
+        This route should always exist in the input data.
+        """
+        for route in self.routes:
+            if route.shop_from == shop_from and route.shop_to == shop_to and route.cost == 0:
+                return route
+        raise LookupError(f"Could not find walking route from {shop_from} to {shop_to}.")
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"
