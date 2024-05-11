@@ -79,22 +79,37 @@ class InputData:
                     distances[(shop2.name, shop1.name)] = distances[(shop1.name, shop2.name)]
         return distances
     
+    def route_matrix(self,eq_num_routes: bool) -> dict[(str,str), list[Route]]:
+        """
+        Returns dictionary of routes: (shop_from, shop_to, route)
+        If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
+        """
+        # add real routes to result dictionary
+        routes = {}
+        for route in self.routes:
+            if (route.shop_from, route.shop_to) in routes:
+                routes[(route.shop_from, route.shop_to)].append(route)
+            else:
+                routes[(route.shop_from, route.shop_to)] = [route]
+
+        # give all pairs an equal number of routes by adding dummies
+        if eq_num_routes:
+            max_routes = self.max_routes() # or max([len(x) for x in routes.values()])
+            dummy_route = Route("", "", M, M)
+            for (shop_from, shop_to) in routes.keys():
+                num_routes = len(routes[(shop_from, shop_to)])
+                num_add = max_routes - num_routes
+                for _ in range(num_add):
+                    routes[(shop_from, shop_to)].append(dummy_route)
+        return routes
+    
     def route_times(self, eq_num_routes: bool) -> dict[(str,str), list[float]]:
         """
         Returns dictionary of route times: (from, to, route_num)
         If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
         """
-        # add real routes to result dictionary
-        times = {}
-        for route in self.routes:
-            if (route.shop_from, route.shop_to) in times:
-                times[(route.shop_from, route.shop_to)].append(route.time)
-            else:
-                times[(route.shop_from, route.shop_to)] = [route.time]
-
-        # give all pairs an equal number of routes by adding dummies
-        if eq_num_routes:
-            self.backfill_routes(times, M)
+        route_matrix = self.route_matrix(eq_num_routes)
+        times = {key:[r.time for r in routes] for key,routes in route_matrix}
         return times
 
     def route_costs(self, eq_num_routes: bool) -> dict[(str,str), list[float]]:
@@ -102,29 +117,9 @@ class InputData:
         Returns dictionary of route costs: (from, to, route_num)
         If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
         """
-        # add real routes to result dictionary
-        costs = {}
-        for route in self.routes:
-            if (route.shop_from, route.shop_to) in costs:
-                costs[(route.shop_from, route.shop_to)].append(route.cost)
-            else:
-                costs[(route.shop_from, route.shop_to)] = [route.cost]
-
-        # give all pairs an equal number of routes by adding dummies
-        if eq_num_routes:
-            self.backfill_routes(costs, M)
+        route_matrix = self.route_matrix(eq_num_routes)
+        costs = {key:[r.cost for r in routes] for key,routes in route_matrix}
         return costs
-
-    def backfill_routes(self, routes: dict[(str,str), list[float]], value: int) -> None:
-        """
-        Make all lists in the dictionary of equal length by appending some value to them.
-        """
-        max_routes = self.max_routes() # or max([len(x) for x in routes.values()])
-        for (shop_from, shop_to) in routes.keys():
-            num_routes = len(routes[(shop_from, shop_to)])
-            num_add = max_routes - num_routes
-            for _ in range(num_add):
-                routes[(shop_from, shop_to)].append(value)
 
     def max_routes(self) -> int:
         """
