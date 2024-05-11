@@ -80,7 +80,6 @@ class Model1Scheduler(Scheduler):
     """  
     def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
         model = simple_model(self._input_data, kpi_cost, kpi_distance)
-        #model.parameters.timelimit = 5
         model.round_solution = True
         msol = model.solve()
 
@@ -90,6 +89,7 @@ class Model1Scheduler(Scheduler):
         #model.print_solution()
 
         shop_decisions = []
+        travel_decisions = []
         current_shop = 0 # start at origin (index 0)
         shops_visited = 0
 
@@ -105,6 +105,10 @@ class Model1Scheduler(Scheduler):
             # set next shop
             for next_shop in range(num_shops):
                 if msol.get_value(f"e_{current_shop}_{next_shop}") == 1:
+                    shop_from = self._input_data.shops[current_shop].name
+                    shop_to = self._input_data.shops[next_shop].name
+                    route = self._input_data.get_walking_route(shop_from, shop_to)
+                    travel_decisions.append(TravelDecision(route))
                     current_shop = next_shop
                     break
   
@@ -112,4 +116,4 @@ class Model1Scheduler(Scheduler):
             if current_shop == 0 and len(shop_decisions) > 0:
                 break
 
-        return Schedule(self._input_data.origin, shop_decisions)
+        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
