@@ -109,7 +109,7 @@ class InputData:
         If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
         """
         route_matrix = self.route_matrix(eq_num_routes)
-        times = {key:[r.time for r in routes] for key,routes in route_matrix}
+        times = {key:[r.time for r in routes] for key,routes in route_matrix.items()}
         return times
 
     def route_costs(self, eq_num_routes: bool) -> dict[(str,str), list[float]]:
@@ -118,7 +118,7 @@ class InputData:
         If eq_num_routes is true, all pairs of shops will have an equal number of routes between them.
         """
         route_matrix = self.route_matrix(eq_num_routes)
-        costs = {key:[r.cost for r in routes] for key,routes in route_matrix}
+        costs = {key:[r.cost for r in routes] for key,routes in route_matrix.items()}
         return costs
 
     def max_routes(self) -> int:

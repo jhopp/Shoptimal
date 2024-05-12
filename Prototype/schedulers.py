@@ -117,3 +117,52 @@ class Model1Scheduler(Scheduler):
                 break
 
         return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
+
+class Model2Scheduler(Scheduler):
+    """
+    Schedules using model2.
+    """  
+    def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
+        model = model2(self._input_data, kpi_cost, kpi_distance)
+        model.round_solution = True
+        msol = model.solve()
+
+        num_items = len(self._input_data.items)
+        num_shops = len(self._input_data.shops)
+        num_routes = self._input_data.max_routes()
+
+        #model.print_solution()
+
+        shop_decisions = []
+        travel_decisions = []
+        route_matrix = self._input_data.route_matrix(eq_num_routes=True)
+        current_shop = 0 # start at origin (index 0)
+        shops_visited = 0
+
+        while shops_visited <= num_shops: # continue until back at origin (at most all shops)
+            shops_visited += 1
+
+            # add current shop items
+            if current_shop != 0:
+                for i in range(num_items):
+                    if msol.get_value(f"x_{i}_{current_shop}") == 1:
+                        shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
+            
+            # set next shop
+            for next_shop in range(num_shops):
+                if current_shop == next_shop: continue 
+                for route_num in range(num_routes):
+                    if msol.get_value(f"e_{current_shop}_{next_shop}_{route_num}") == 1:
+                        shop_from = self._input_data.shops[current_shop].name
+                        shop_to = self._input_data.shops[next_shop].name
+                        route = route_matrix[shop_from, shop_to][route_num]
+                        travel_decisions.append(TravelDecision(route))
+                        current_shop = next_shop
+                        break
+                if current_shop == next_shop: break # found a route taken
+  
+            # terminate loop if at origin again
+            if current_shop == 0 and len(shop_decisions) > 0:
+                break
+
+        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
