@@ -46,31 +46,20 @@ class Schedule:
     @property
     def cost(self) -> float:
         """
-
         Returns
         -------
         float : Schedule's cost in monetary units
         """
-        total_cost = 0
-        for decision in self.shop_decisions:
-            total_cost += decision.shop.price_by_product[decision.item.name] # multiply by quantity once implemented
-        return total_cost
+        return sum([decision.shop.price_by_product[decision.item.name] for decision in self.shop_decisions])
 
     @property
-    def total_distance(self) -> float:
+    def duration(self) -> float:
         """
-
         Returns
         -------
-        float : Schedule's distance traveled in distance units
+        float : Schedule's travel duration in time units
         """
-        previous_shop = self.shop_decisions[0].shop
-        distance = previous_shop.euclidian_distance(self.origin)
-        for decision in self.shop_decisions:
-            distance += previous_shop.euclidian_distance(decision.shop)
-            previous_shop = decision.shop
-        distance += previous_shop.euclidian_distance(self.origin)
-        return distance
+        return sum([decision.route.time for decision in self.travel_decisions])
 
     def __repr__(self) -> str:
         return f"{self.shop_decisions}"
