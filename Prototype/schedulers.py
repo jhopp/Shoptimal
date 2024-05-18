@@ -32,8 +32,8 @@ class BasicScheduler(Scheduler):
                     scheduled_items.add(item.name)
                     shop_decisions.append(ShopDecision(item, shop))
                     purchase_made = True
-            # if a purchase was made at this shop, add traveldecision (first route found)        
-            if purchase_made:
+            # if a purchase was made at this shop (not origin), add traveldecision        
+            if purchase_made and shop.name != "origin":
                 route = self._input_data.get_walking_route(previous_shop, shop.name)
                 travel_decisions.append(TravelDecision(route))
             previous_shop = shop.name
