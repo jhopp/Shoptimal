@@ -36,7 +36,7 @@ class BasicScheduler(Scheduler):
             if purchase_made and shop.name != "origin":
                 route = self._input_data.get_walking_route(previous_shop, shop.name)
                 travel_decisions.append(TravelDecision(route))
-            previous_shop = shop.name
+                previous_shop = shop.name
         # add travel back to origin
         route = self._input_data.get_walking_route(previous_shop, "origin")
         travel_decisions.append(TravelDecision(route))    

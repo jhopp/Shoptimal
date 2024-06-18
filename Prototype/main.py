@@ -27,14 +27,12 @@ if __name__ == '__main__':
 
     model1_schedule = Model1Scheduler(input_data).schedule(kpi_cost=7,kpi_distance=1)
     print(model1_schedule)
-    print(model1_schedule.travel_decisions)
     print(f"Cost: {round(model1_schedule.cost, 2)}")
     print(f"Distance: {round(model1_schedule.duration, 2)}")
     ScheduleValidator(input_data, model1_schedule).validate()
 
     model2_schedule = Model2Scheduler(input_data).schedule(kpi_cost=7,kpi_distance=1)
     print(model2_schedule)
-    print(model2_schedule.travel_decisions)
     print(f"Cost: {round(model2_schedule.cost, 2)}")
     print(f"Distance: {round(model2_schedule.duration, 2)}")
     ScheduleValidator(input_data, model2_schedule).validate()

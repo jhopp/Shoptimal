@@ -1,6 +1,7 @@
 from item import Item
 from shop import Shop
 from route import Route
+from constants import CBLUE, CBLUE2, CBOLD, CGREEN, CVIOLET, CYELLOW, CEND
 
 
 class ShopDecision:
@@ -83,6 +84,23 @@ class Schedule:
         decision = self.travel_decisions[self.iter_travel]
         self.iter_travel += 1
         return decision
+
+    def __str__(self) -> str:
+        schedule_string = ""
+        for dec in self:
+            if isinstance(dec, ShopDecision):
+                cost = dec.shop.price_by_product[dec.item.name]
+                schedule_string += CGREEN + f"{'Purchased'}  " + CEND
+                schedule_string += CBLUE + f"{dec.quantity:<2} " + CEND
+                schedule_string += f"{dec.item.name:<14} "
+                schedule_string += "for " + CBLUE2 + f"{cost}\n" + CEND
+            if isinstance(dec, TravelDecision):
+                schedule_string += CYELLOW + f"{'Traveled'} " + CEND
+                schedule_string += CVIOLET + f"{dec.route.time:<6} " + CEND
+                schedule_string += CBOLD + f"→ " + CEND 
+                schedule_string += f"{dec.route.shop_to:<10} "        
+                schedule_string += "for " + CBLUE2 + f"{dec.route.cost}\n" + CEND
+        return schedule_string
 
     def __repr__(self) -> str:
         return f"{self.shop_decisions}"
