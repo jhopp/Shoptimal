@@ -67,6 +67,19 @@ class ShopsAreVisitedOnce(ScheduleChecker):
             prev_shop = name
         return True
 
+class TravelFormsValidTour(ScheduleChecker):
+    def check(self) -> bool:
+        """
+        Checks that the travel decisions form a valid tour.
+        This means the shop_from of any travel decision is the shop_to of the previous travel decision.
+        """
+        previous_shop = "origin"
+        for decision in self._schedule.travel_decisions:
+            if decision.route.shop_from != previous_shop:
+                return False
+            previous_shop = decision.route.shop_to
+        return previous_shop == "origin"
+
 class ScheduleValidator:
     def __init__(self, input_data: InputData, schedule: Schedule):
         self._input_data = input_data
@@ -75,7 +88,8 @@ class ScheduleValidator:
             AllItemsArePurchased,
             AllPurchasesAreItems,
             AllPurchasesAreValid,
-            ShopsAreVisitedOnce
+            ShopsAreVisitedOnce,
+            TravelFormsValidTour
         ]
 
     def validate(self) -> None:
