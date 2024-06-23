@@ -65,24 +65,24 @@ class Schedule:
         return sum([decision.route.time for decision in self.travel_decisions])
     
     def __iter__(self):
-        self.iter_travel = 0
-        self.iter_shop = 0
+        self._iter_travel = 0
+        self._iter_shop = 0
         return self
 
     def __next__(self):
         # stop iteration if out of decisions (last travel means no more shop)
-        if self.iter_travel >= len(self.travel_decisions):
+        if self._iter_travel >= len(self.travel_decisions):
             raise StopIteration
         # return shop_decision if purchase made at current shop
-        if self.iter_shop < len(self.shop_decisions):
-            decision = self.shop_decisions[self.iter_shop]
-            current_shop = self.travel_decisions[self.iter_travel].route.shop_from
+        if self._iter_shop < len(self.shop_decisions):
+            decision = self.shop_decisions[self._iter_shop]
+            current_shop = self.travel_decisions[self._iter_travel].route.shop_from
             if decision.shop.name == current_shop:
-                self.iter_shop += 1
+                self._iter_shop += 1
                 return decision
         # return travel_decision if purchase not made and can travel
-        decision = self.travel_decisions[self.iter_travel]
-        self.iter_travel += 1
+        decision = self.travel_decisions[self._iter_travel]
+        self._iter_travel += 1
         return decision
 
     def __str__(self) -> str:
