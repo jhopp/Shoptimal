@@ -1,2 +1,4 @@
 docplex==2.25.236
 pandas==2.2.2
+numpy==1.26.4
+cplex==22.1.1.0
