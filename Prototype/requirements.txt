@@ -1,2 +1,2 @@
-docplex=2.25.236
-pandas=1.4.2
+docplex==2.25.236
+pandas==2.2.2
