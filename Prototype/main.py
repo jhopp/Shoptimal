@@ -4,15 +4,14 @@ from schedulers import BasicScheduler, Model1Scheduler, BestPriceScheduler, Mode
 from validators import ScheduleValidator
 
 if __name__ == '__main__':
+    # Generate input data
     data_generator = DataGenerator('shop_names.txt', 'product_names.txt')
     data_generator.to_csv(all_items_available=True)
 
+    # Read input data
     input_data = InputData.from_csv('input/')
 
-    #print(input_data)
-    #print(f"Unavailable: {input_data.unavailable_items()}")
-    #print(input_data.shop_distances())
-
+    # Run schedulers
     basic_schedule = BasicScheduler(input_data).schedule()
     print(basic_schedule)
     print(f"Cost: {round(basic_schedule.cost, 2)}")
