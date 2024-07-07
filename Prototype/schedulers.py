@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from schedule import Schedule, ShopDecision, TravelDecision
 from input_data import InputData
-from simple_model import simple_model
+from model1 import model1
 from model2 import model2
 from math import inf
 
@@ -79,7 +79,7 @@ class Model1Scheduler(Scheduler):
     Schedules using simple_model.
     """  
     def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
-        model = simple_model(self._input_data, kpi_cost, kpi_distance)
+        model = model1(self._input_data, kpi_cost, kpi_distance)
         model.round_solution = True
         msol = model.solve()
 

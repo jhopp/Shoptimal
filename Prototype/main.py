@@ -10,7 +10,7 @@ if __name__ == '__main__':
     input_data = InputData.from_csv('input/')
 
     #print(input_data)
-    print(f"Unavailable: {input_data.unavailable_items()}")
+    #print(f"Unavailable: {input_data.unavailable_items()}")
     #print(input_data.shop_distances())
 
     basic_schedule = BasicScheduler(input_data).schedule()
