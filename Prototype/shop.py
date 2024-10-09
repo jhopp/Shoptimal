@@ -20,8 +20,7 @@ class Shop:
         return None
 
     def available_products(self) -> set[str]:
-        products = [product_name for product_name in self.price_by_product.keys()]
-        return set(products)
+        return set(self.price_by_product.keys())
 
     def euclidian_distance(self, other) -> float:
         (x1, y1) = self.location
