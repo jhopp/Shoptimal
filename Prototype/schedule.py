@@ -5,10 +5,10 @@ from constants import CBLUE, CBLUE2, CBOLD, CGREEN, CVIOLET, CYELLOW, CEND
 
 
 class ShopDecision:
-    def __init__(self, item: Item, shop: Shop) -> None:
+    def __init__(self, item: Item, shop: Shop, quantity: int = 1) -> None:
         self.item = item
         self.shop = shop
-        self.quantity = 1 # pass this as argument when item quantities are implemented
+        self.quantity = quantity
 
     def __repr__(self) -> str:
         return f"{self.shop.name}: {self.item.name}"
