@@ -19,33 +19,42 @@ class DataGenerator:
     def set_num_products(self, num_products):
         self.num_products = num_products
 
-    def generate_product_data(self, items, all_items_available=False):
+    def generate_product_data(self, item_data, all_items_available=False):
         """
         Generates and returns a DataFrame of product data.
         Format: (shop_name, product_name, price, stock)
         """
-        shops = self.shop_names.copy()
-        shops.remove("origin")
-        product_data = []
+        items = item_data.loc[item_data[0] != "originsauce"].to_numpy()
+        shop_names = self.shop_names.copy()
+        shop_names.remove("origin")
+        product_matrix = {}
 
-        if all_items_available:
-            # first ensure all items can be purchased somewhere
-            for item in items:
-                if item == "originsauce": continue
-                shop = rnd.choice(shops)
-                price = round(rnd.uniform(self._price_range[0], self._price_range[1]), 2)
-                quantity = rnd.randrange(self._stock_range[0], self._stock_range[1])
-                product_data.append((shop, item, price, quantity))
-
-        # generate rest of products
-        n = self.num_products - (self.num_items if all_items_available else 0)
-        for _ in range(n):
-            shop = rnd.choice(shops)
-            item = rnd.choice(self.product_names)
-            price = round(rnd.uniform(self._price_range[0], self._price_range[1]), 2)
+        # generate specified number of products
+        for _ in range(self.num_products):
+            product_name = rnd.choice(self.product_names)
+            shop_name = rnd.choice(shop_names)
             quantity = rnd.randrange(self._stock_range[0], self._stock_range[1])
-            product_data.append((shop, item, price, quantity))
+            if (shop_name, product_name) in product_matrix:
+                product_matrix[(shop_name, product_name)] += quantity
+            else:
+                product_matrix[(shop_name, product_name)] = quantity
+
+        # conditionally, for each item ensure total stock meets desired quantity
+        if all_items_available:
+            for item_name, item_quant in items:
+                current_stock = sum([v for k, v in product_matrix.items() if k[1] == item_name])
+                if current_stock < item_quant:
+                    # pick random shop and make current item fully available there
+                    shop_name = rnd.choice(shop_names)
+                    product_matrix[(shop_name, item_name)] = item_quant
         
+        # consolidate products into list and add price
+        product_data = []
+        for shop_name, product_name in product_matrix:
+            price = round(rnd.uniform(self._price_range[0], self._price_range[1]), 2)
+            quantity = product_matrix[(shop_name, product_name)]
+            product_data.append((shop_name, product_name, price, quantity))
+
         product_data.append(("origin", "originsauce", 0.01, 1)) # add unique product to force origin visit
         return pd.DataFrame(product_data)
     
@@ -67,18 +76,17 @@ class DataGenerator:
         Requires shop data to have been generated.
         Format: (shop_from_name, shop_to_name, time, cost)
         """
+        route_data = []
+        shops = shop_data.to_numpy()
 
         if len(shops) < 2 and self._num_routes > 0:
             raise ValueError(f"Cannot generate {self._num_routes} additional routes between {len(shops)} shops.")
 
-        route_data = []
-        shops = shop_data.to_numpy()
-
         # generate routes by walking
         for shop_from in shops:
             for shop_to in shops:
-                distance = round(sqrt(pow(shop_from[1] - shop_to[1], 2) + pow(shop_from[2] - shop_to[2], 2)),2)
-                route_data.append((shop_from[0], shop_to[0], distance, 0))
+                time = round(sqrt(pow(shop_from[1] - shop_to[1], 2) + pow(shop_from[2] - shop_to[2], 2)),2)
+                route_data.append((shop_from[0], shop_to[0], time, 0))
 
         # generate additional routes
         for _ in range(self._num_routes):
@@ -110,7 +118,7 @@ class DataGenerator:
         """
         item_data = self.generate_item_data()
         item_data.to_csv("input/item_data.csv", header=False, index=False)
-        product_data = self.generate_product_data(item_data.iloc[:,0], all_items_available)
+        product_data = self.generate_product_data(item_data, all_items_available)
         product_data.to_csv("input/product_data.csv", header=False, index=False)
         shop_data = self.generate_shop_data()
         shop_data.to_csv("input/shop_data.csv", header=False, index=False)

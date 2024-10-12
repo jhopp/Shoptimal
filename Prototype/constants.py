@@ -2,7 +2,7 @@ M = 120 * 10000 # a very large number!
 
 # data generator defaults
 PRICE_RANGE = (0.1, 20.0)
-STOCK_RANGE = (1, 50)
+STOCK_RANGE = (1, 20)
 LOC_RANGE = (0, 100)
 NUM_ITEMS = 12
 NUM_PRODUCTS = max(150, NUM_ITEMS) # at least as many products as items
