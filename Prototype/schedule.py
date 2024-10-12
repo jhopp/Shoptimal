@@ -51,7 +51,7 @@ class Schedule:
         -------
         float : Schedule's cost in monetary units
         """
-        purchase_cost = sum([decision.shop.price_by_product[decision.item.name] for decision in self.shop_decisions])
+        purchase_cost = sum([decision.shop.price_by_product[decision.item.name] * decision.quantity for decision in self.shop_decisions])
         travel_cost = sum([decision.route.cost for decision in self.travel_decisions])
         return purchase_cost + travel_cost
 
