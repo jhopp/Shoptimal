@@ -67,6 +67,10 @@ class DataGenerator:
         Requires shop data to have been generated.
         Format: (shop_from_name, shop_to_name, time, cost)
         """
+
+        if len(shops) < 2 and self._num_routes > 0:
+            raise ValueError(f"Cannot generate {self._num_routes} additional routes between {len(shops)} shops.")
+
         route_data = []
         shops = shop_data.to_numpy()
 
