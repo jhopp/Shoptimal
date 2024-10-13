@@ -38,7 +38,7 @@ class AllPurchasesAreItems(ScheduleChecker):
                 return False
         return True      
 
-class AllPurchasesAreValid(ScheduleChecker):
+class AllPurchasesAreOffered(ScheduleChecker):
     def check(self) -> bool:
         """
         Checks that all items are purchased at a shop that sells that item.
@@ -79,6 +79,16 @@ class TravelFormsValidTour(ScheduleChecker):
                 return False
             previous_shop = decision.route.shop_to
         return previous_shop == "origin"
+    
+class AllPurchasesWithinStock(ScheduleChecker):
+    def check(self) -> bool:
+        """
+        Checks that no purchase made exceeds the stock of the product at that shop.
+        """
+        for decision in self._schedule.shop_decisions:
+            if decision.quantity > decision.shop.get_stock(decision.item.name):
+                return False
+        return True
 
 class ScheduleValidator:
     def __init__(self, input_data: InputData, schedule: Schedule):
@@ -87,9 +97,10 @@ class ScheduleValidator:
         self._checker_classes = [
             AllItemsArePurchased,
             AllPurchasesAreItems,
-            AllPurchasesAreValid,
+            AllPurchasesAreOffered,
             ShopsAreVisitedOnce,
-            TravelFormsValidTour
+            TravelFormsValidTour,
+            AllPurchasesWithinStock
         ]
 
     def validate(self) -> None:
