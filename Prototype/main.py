@@ -1,6 +1,6 @@
 from input_data import InputData
 from data_generator import DataGenerator
-from schedulers import BasicScheduler, Model1Scheduler, BestPriceScheduler, Model2Scheduler
+from schedulers import BasicScheduler, Model1Scheduler, BestPriceScheduler, Model2Scheduler, Model3Scheduler
 from validators import ScheduleValidator
 
 if __name__ == '__main__':
@@ -35,4 +35,10 @@ if __name__ == '__main__':
     print(f"Cost: {round(model2_schedule.cost, 2)}")
     print(f"Distance: {round(model2_schedule.duration, 2)}")
     ScheduleValidator(input_data, model2_schedule).validate()
+
+    model3_schedule = Model3Scheduler(input_data).schedule(kpi_cost=7,kpi_distance=1)
+    print(model3_schedule)
+    print(f"Cost: {round(model3_schedule.cost, 2)}")
+    print(f"Distance: {round(model3_schedule.duration, 2)}")
+    ScheduleValidator(input_data, model3_schedule).validate()
     
