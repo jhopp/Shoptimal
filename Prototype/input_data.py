@@ -18,6 +18,7 @@ class InputData:
         self.shops = shops
         self.items = items # shopping list
         self.routes = routes
+        self.route_by_number = self.route_matrix(eq_num_routes=False)
 
     def _get_origin(path: str) -> tuple[float, float]:
         return (50, 50)
@@ -142,6 +143,16 @@ class InputData:
             if route.shop_from == shop_from and route.shop_to == shop_to and route.cost == 0:
                 return route
         raise LookupError(f"Could not find walking route from {shop_from} to {shop_to}.")
+    
+    def get_route(self, shop_from: str, shop_to: str, route_num:int) -> Route:
+        """
+        Returns the route_num'th route from shop_from to shop_to, or
+        None of this route does not exist.             
+        """
+        if (shop_from, shop_to) in self.route_by_number:
+            if len(self.route_by_number[(shop_from, shop_to)]) > route_num:
+                return self.route_by_number[(shop_from, shop_to)][route_num]
+        return None
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"
