@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from schedule import Schedule, ShopDecision, TravelDecision
+from schedule import Schedule, Decision, ShopDecision, TravelDecision
 from input_data import InputData
 from model1 import model1
 from model2 import model2
@@ -10,6 +10,7 @@ from math import inf
 class Scheduler(ABC):
     def __init__(self, input_data: InputData):
         self._input_data = input_data
+        self._model_solution = None
 
     @abstractmethod
     def schedule(self) -> Schedule:
@@ -22,8 +23,7 @@ class BasicScheduler(Scheduler):
     """
     def schedule(self) -> Schedule:
         scheduled_items = set()
-        shop_decisions = []
-        travel_decisions = []
+        decisions = []
         previous_shop = "origin"
         for shop in self._input_data.shops:
             # purchase all available items at current shop
@@ -31,17 +31,18 @@ class BasicScheduler(Scheduler):
             for item in self._input_data.items:
                 if item.name in shop.available_products() and item.name not in scheduled_items:
                     scheduled_items.add(item.name)
-                    shop_decisions.append(ShopDecision(item, shop))
+                    decision = ShopDecision(item, shop)
+                    decisions.append(decision)
                     purchase_made = True
             # if a purchase was made at this shop (not origin), add traveldecision        
             if purchase_made and shop.name != "origin":
                 route = self._input_data.get_walking_route(previous_shop, shop.name)
-                travel_decisions.append(TravelDecision(route))
+                decisions.append(TravelDecision(route))
                 previous_shop = shop.name
         # add travel back to origin
         route = self._input_data.get_walking_route(previous_shop, "origin")
-        travel_decisions.append(TravelDecision(route))    
-        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
+        decisions.append(TravelDecision(route))
+        return Schedule(self._input_data.origin, decisions)
 
 class BestPriceScheduler(Scheduler):
     """
@@ -49,8 +50,9 @@ class BestPriceScheduler(Scheduler):
     Does not take distance into account.
     """
     def schedule(self) -> Schedule:
+        decisions = []
         shop_decisions = []
-        travel_decisions = []
+
         # for each item find cheapest shop and add shopdecision
         for item in self._input_data.items:
             if item.name == "originsauce": continue
@@ -63,18 +65,21 @@ class BestPriceScheduler(Scheduler):
                     cheapest_shop = shop
                     best_price = shop.get_price(item.name)
             shop_decisions.append(ShopDecision(item, cheapest_shop))
+
         # add traveldecisions (walking)
         sorted_shop_decisions = sorted(shop_decisions, key= lambda x: x.shop.name)
         previous_shop = "origin"
         for decision in sorted_shop_decisions:
             if previous_shop !=  decision.shop.name:
                 route = self._input_data.get_walking_route(previous_shop, decision.shop.name)
-                travel_decisions.append(TravelDecision(route))
+                decisions.append(TravelDecision(route))
                 previous_shop = decision.shop.name
+            decisions.append(decision)
         route = self._input_data.get_walking_route(previous_shop, "origin")
-        travel_decisions.append(TravelDecision(route))
-        return Schedule(self._input_data.origin,sorted_shop_decisions,travel_decisions)
-    
+        decisions.append(TravelDecision(route))
+
+        return Schedule(self._input_data.origin,decisions)
+
 class Model1Scheduler(Scheduler):
     """
     Schedules using simple_model.
@@ -89,8 +94,7 @@ class Model1Scheduler(Scheduler):
 
         #model.print_solution()
 
-        shop_decisions = []
-        travel_decisions = []
+        decisions = []
         current_shop = 0 # start at origin (index 0)
         shops_visited = 0
 
@@ -101,7 +105,7 @@ class Model1Scheduler(Scheduler):
             if current_shop != 0:
                 for i in range(num_items):
                     if msol.get_value(f"x_{i}_{current_shop}") == 1:
-                        shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
+                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
 
             # set next shop
             for next_shop in range(num_shops):
@@ -109,15 +113,15 @@ class Model1Scheduler(Scheduler):
                     shop_from = self._input_data.shops[current_shop].name
                     shop_to = self._input_data.shops[next_shop].name
                     route = self._input_data.get_walking_route(shop_from, shop_to)
-                    travel_decisions.append(TravelDecision(route))
+                    decisions.append(TravelDecision(route))
                     current_shop = next_shop
                     break
   
             # terminate loop if at origin again
-            if current_shop == 0 and len(shop_decisions) > 0:
+            if current_shop == 0 and len(decisions) > 0:
                 break
 
-        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
+        return Schedule(self._input_data.origin, decisions)
 
 class Model2Scheduler(Scheduler):
     """
@@ -134,8 +138,7 @@ class Model2Scheduler(Scheduler):
 
         #model.print_solution()
 
-        shop_decisions = []
-        travel_decisions = []
+        decisions = []
         route_matrix = self._input_data.route_matrix(eq_num_routes=True)
         current_shop = 0 # start at origin (index 0)
         shops_visited = 0
@@ -147,7 +150,7 @@ class Model2Scheduler(Scheduler):
             if current_shop != 0:
                 for i in range(num_items):
                     if msol.get_value(f"x_{i}_{current_shop}") == 1:
-                        shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
+                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
             
             # set next shop
             for next_shop in range(num_shops):
@@ -157,16 +160,16 @@ class Model2Scheduler(Scheduler):
                         shop_from = self._input_data.shops[current_shop].name
                         shop_to = self._input_data.shops[next_shop].name
                         route = route_matrix[shop_from, shop_to][route_num]
-                        travel_decisions.append(TravelDecision(route))
+                        decisions.append(TravelDecision(route))
                         current_shop = next_shop
                         break
                 if current_shop == next_shop: break # found a route taken
   
             # terminate loop if at origin again
-            if current_shop == 0 and len(shop_decisions) > 0:
+            if current_shop == 0 and len(decisions) > 0:
                 break
 
-        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
+        return Schedule(self._input_data.origin, decisions)
     
 class Model3Scheduler(Scheduler):
     """
@@ -181,10 +184,7 @@ class Model3Scheduler(Scheduler):
         num_shops = len(self._input_data.shops)
         num_routes = self._input_data.max_routes()
 
-        #model.print_solution()
-
-        shop_decisions = []
-        travel_decisions = []
+        decisions = []
         route_matrix = self._input_data.route_matrix(eq_num_routes=True)
         current_shop = 0 # start at origin (index 0)
         shops_visited = 0
@@ -197,7 +197,7 @@ class Model3Scheduler(Scheduler):
                 for i in range(num_items):
                     quantity = int(msol.get_value(f"x_{i}_{current_shop}"))
                     if quantity > 0:
-                        shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop], quantity))
+                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop], quantity))
             
             # set next shop
             for next_shop in range(num_shops):
@@ -207,13 +207,13 @@ class Model3Scheduler(Scheduler):
                         shop_from = self._input_data.shops[current_shop].name
                         shop_to = self._input_data.shops[next_shop].name
                         route = route_matrix[shop_from, shop_to][route_num]
-                        travel_decisions.append(TravelDecision(route))
+                        decisions.append(TravelDecision(route))
                         current_shop = next_shop
                         break
                 if current_shop == next_shop: break # found a route taken
   
             # terminate loop if at origin again
-            if current_shop == 0 and len(shop_decisions) > 0:
+            if current_shop == 0 and len(decisions) > 0:
                 break
 
-        return Schedule(self._input_data.origin, shop_decisions, travel_decisions)
+        return Schedule(self._input_data.origin, decisions)

@@ -1,10 +1,14 @@
+from abc import ABC, abstractmethod
 from item import Item
 from shop import Shop
 from route import Route
 from constants import CBLUE, CBLUE2, CBOLD, CGREEN, CVIOLET, CYELLOW, CEND
 
+class Decision(ABC):
+    def __init__(self):
+        pass
 
-class ShopDecision:
+class ShopDecision(Decision):
     def __init__(self, item: Item, shop: Shop, quantity: int = 1) -> None:
         self.item = item
         self.shop = shop
@@ -13,7 +17,7 @@ class ShopDecision:
     def __repr__(self) -> str:
         return f"{self.shop.name}: {self.item.name}"
     
-class TravelDecision:
+class TravelDecision(Decision):
     def __init__(self, route: Route) -> None:
         self.route = route
 
@@ -21,10 +25,11 @@ class TravelDecision:
         return f"{self.route.shop_from}: {self.route.shop_to}"
 
 class Schedule:
-    def __init__(self, origin: tuple[float, float], shop_decisions: list[ShopDecision], travel_decisions: list[TravelDecision]=[]) -> None:
+    def __init__(self, origin: tuple[float, float], decisions: list[Decision]) -> None:
         self.origin = origin
-        self.shop_decisions = shop_decisions
-        self.travel_decisions = travel_decisions
+        self.decisions = decisions
+        self.shop_decisions = [d for d in self.decisions if type(d) == ShopDecision]
+        self.travel_decisions = [d for d in self.decisions if type(d) == TravelDecision]
 
     def to_itemset(self) -> set[str]:
         """
