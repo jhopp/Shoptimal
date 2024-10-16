@@ -153,6 +153,15 @@ class InputData:
             if len(self.route_by_number[(shop_from, shop_to)]) > route_num:
                 return self.route_by_number[(shop_from, shop_to)][route_num]
         return None
+    
+    def get_shop_index(self, shop_name:str) -> int:
+        """
+        Returns the index of a given shop, or -1 if not found.
+        """
+        for i in range(len(self.shops)):
+            if self.shops[i].name == shop_name:
+                return i
+        raise LookupError(f"{shop_name} is not in shop list.")
 
     def __repr__(self) -> str:
         return f"{self.shops}\n{self.items}"

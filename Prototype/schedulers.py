@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from schedule import Schedule, Decision, ShopDecision, TravelDecision
+from schedule import Schedule, ShopDecision, TravelDecision
 from input_data import InputData
 from model1 import model1
 from model2 import model2
@@ -80,140 +80,95 @@ class BestPriceScheduler(Scheduler):
 
         return Schedule(self._input_data.origin,decisions)
 
-class Model1Scheduler(Scheduler):
-    """
-    Schedules using simple_model.
-    """  
-    def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
-        model = model1(self._input_data, kpi_cost, kpi_distance)
-        model.round_solution = True
+class ModelScheduler(Scheduler):
+    def model_schedule(self, model) -> Schedule:
         msol = model.solve()
-
-        num_items = len(self._input_data.items)
-        num_shops = len(self._input_data.shops)
-
-        #model.print_solution()
 
         decisions = []
         current_shop = 0 # start at origin (index 0)
-        shops_visited = 0
 
-        while shops_visited <= num_shops: # continue until back at origin (at most all shops)
-            shops_visited += 1
-
+        for _ in range(len(self._input_data.shops)): # continue until back at origin (at most all shops)
             # add current shop items
             if current_shop != 0:
-                for i in range(num_items):
-                    if msol.get_value(f"x_{i}_{current_shop}") == 1:
-                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
-
+                purchases = self.get_shop_decisions(msol, current_shop)
+                decisions.extend(purchases)
+            
             # set next shop
-            for next_shop in range(num_shops):
-                if msol.get_value(f"e_{current_shop}_{next_shop}") == 1:
-                    shop_from = self._input_data.shops[current_shop].name
-                    shop_to = self._input_data.shops[next_shop].name
-                    route = self._input_data.get_walking_route(shop_from, shop_to)
-                    decisions.append(TravelDecision(route))
-                    current_shop = next_shop
-                    break
+            travel = self.get_travel_decision(msol, current_shop)
+            decisions.append(travel)
+            current_shop = self._input_data.get_shop_index(travel.route.shop_to)
   
             # terminate loop if at origin again
             if current_shop == 0 and len(decisions) > 0:
-                break
+                return Schedule(self._input_data.origin, decisions)
 
-        return Schedule(self._input_data.origin, decisions)
+        raise RuntimeError("Traversed all shops without returning to origin.")
 
-class Model2Scheduler(Scheduler):
+    def get_travel_decision(self, solution, shop_from):
+        """
+        Returns the TravelDecision originating at shop_from in the solution.
+        """
+        num_shops = len(self._input_data.shops)
+        num_routes = self._input_data.max_routes()
+        route_matrix = self._input_data.route_matrix(eq_num_routes=True)
+        for shop_to in range(num_shops):
+            for route_num in range(num_routes):
+                if solution.get_value(f"e_{shop_from}_{shop_to}_{route_num}") == 1:
+                    shop_from_name = self._input_data.shops[shop_from].name
+                    shop_to_name = self._input_data.shops[shop_to].name
+                    route = route_matrix[shop_from_name, shop_to_name][route_num]
+                    return TravelDecision(route)
+        raise LookupError(f"Unable to find TravelDecision originating at {shop_from} in the solution.")
+    
+    def get_shop_decisions(self, solution, shop):
+        """
+        Returns a list of ShopDecisions made at a given shop in the solution.
+        """
+        num_items = len(self._input_data.items)
+        shop_decisions = []
+        for i in range(0, num_items):
+            quantity = int(solution.get_value(f"x_{i}_{shop}"))
+            if quantity > 0:
+                shop_decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[shop], quantity))
+        return shop_decisions
+
+class Model1Scheduler(ModelScheduler):
+    """
+    Schedules using simple_model.
+    """ 
+    def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
+        model = model1(self._input_data, kpi_cost, kpi_distance)
+        model.round_solution = True
+        return self.model_schedule(model)
+
+    def get_travel_decision(self, solution, shop_from):
+        """
+        Returns the TravelDecision originating at shop_from in the solution.
+        """
+        num_shops = len(self._input_data.shops)
+        for shop_to in range(num_shops):
+            if solution.get_value(f"e_{shop_from}_{shop_to}") == 1:
+                shop_from_name = self._input_data.shops[shop_from].name
+                shop_to_name = self._input_data.shops[shop_to].name
+                route = self._input_data.get_walking_route(shop_from_name, shop_to_name)
+                return TravelDecision(route)
+        raise LookupError(f"Unable to find TravelDecision originating at {shop_from} in the solution.")
+
+class Model2Scheduler(ModelScheduler):
     """
     Schedules using model2.
     """  
     def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
         model = model2(self._input_data, kpi_cost, kpi_distance)
         model.round_solution = True
-        msol = model.solve()
-
-        num_items = len(self._input_data.items)
-        num_shops = len(self._input_data.shops)
-        num_routes = self._input_data.max_routes()
-
-        #model.print_solution()
-
-        decisions = []
-        route_matrix = self._input_data.route_matrix(eq_num_routes=True)
-        current_shop = 0 # start at origin (index 0)
-        shops_visited = 0
-
-        while shops_visited <= num_shops: # continue until back at origin (at most all shops)
-            shops_visited += 1
-
-            # add current shop items
-            if current_shop != 0:
-                for i in range(num_items):
-                    if msol.get_value(f"x_{i}_{current_shop}") == 1:
-                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop]))
-            
-            # set next shop
-            for next_shop in range(num_shops):
-                if current_shop == next_shop: continue 
-                for route_num in range(num_routes):
-                    if msol.get_value(f"e_{current_shop}_{next_shop}_{route_num}") == 1:
-                        shop_from = self._input_data.shops[current_shop].name
-                        shop_to = self._input_data.shops[next_shop].name
-                        route = route_matrix[shop_from, shop_to][route_num]
-                        decisions.append(TravelDecision(route))
-                        current_shop = next_shop
-                        break
-                if current_shop == next_shop: break # found a route taken
-  
-            # terminate loop if at origin again
-            if current_shop == 0 and len(decisions) > 0:
-                break
-
-        return Schedule(self._input_data.origin, decisions)
+        return self.model_schedule(model)
+        
     
-class Model3Scheduler(Scheduler):
+class Model3Scheduler(ModelScheduler):
     """
     Schedules using model3.
     """  
     def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
         model = model3(self._input_data, kpi_cost, kpi_distance)
         model.round_solution = True
-        msol = model.solve()
-
-        num_items = len(self._input_data.items)
-        num_shops = len(self._input_data.shops)
-        num_routes = self._input_data.max_routes()
-
-        decisions = []
-        route_matrix = self._input_data.route_matrix(eq_num_routes=True)
-        current_shop = 0 # start at origin (index 0)
-        shops_visited = 0
-
-        while shops_visited <= num_shops: # continue until back at origin (at most all shops)
-            shops_visited += 1
-
-            # add current shop items
-            if current_shop != 0:
-                for i in range(num_items):
-                    quantity = int(msol.get_value(f"x_{i}_{current_shop}"))
-                    if quantity > 0:
-                        decisions.append(ShopDecision(self._input_data.items[i], self._input_data.shops[current_shop], quantity))
-            
-            # set next shop
-            for next_shop in range(num_shops):
-                if current_shop == next_shop: continue 
-                for route_num in range(num_routes):
-                    if msol.get_value(f"e_{current_shop}_{next_shop}_{route_num}") == 1:
-                        shop_from = self._input_data.shops[current_shop].name
-                        shop_to = self._input_data.shops[next_shop].name
-                        route = route_matrix[shop_from, shop_to][route_num]
-                        decisions.append(TravelDecision(route))
-                        current_shop = next_shop
-                        break
-                if current_shop == next_shop: break # found a route taken
-  
-            # terminate loop if at origin again
-            if current_shop == 0 and len(decisions) > 0:
-                break
-
-        return Schedule(self._input_data.origin, decisions)
+        return self.model_schedule(model)
