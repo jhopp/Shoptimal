@@ -17,6 +17,8 @@ Creates a schedule with the lowest possible monetary cost. For each item on the 
 Uses a linear programming model (DOcplex) to create a schedule, optimising for both the monetary cost and the travel time of the schedule. As this involves multi-objective optimisation, the scheduler has weight parameters to scale the importance of the cost or time. This model considers only a single costless route between any pair of shops.
 #### 4. Model2Scheduler
 Expands upon the previous linear programming model by allowing for multiple routes between pairs of shops with varying cost and time.
+#### 5. Model3Scheduler
+Extends the previous two models by taking item quantities into account. Items of the same type can be purchased at different shops to fulfill the shopping list.
 
 ## Limitations
-The schedulers do not currently take into account item/product quantities and shop opening/closing times.
+The schedulers do not currently take into account shop opening/closing times.
