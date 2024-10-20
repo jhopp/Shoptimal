@@ -33,10 +33,7 @@ class AllPurchasesAreItems(ScheduleChecker):
         """
         purchased_items = self._schedule.to_itemset()
         shopping_list = [item.name for item in self._input_data.items]
-        for item in purchased_items:
-            if item not in shopping_list:
-                return False
-        return True      
+        return all([item in shopping_list for item in purchased_items]) 
 
 class AllPurchasesAreOffered(ScheduleChecker):
     def check(self) -> bool:
@@ -55,17 +52,9 @@ class ShopsAreVisitedOnce(ScheduleChecker):
         This means shopdecisions at some shop should be in sequence.
         Passing this check is not required for a schedule to be valid.
         """
-        visited = set()
-        prev_shop = None
-        for decision in self._schedule.shop_decisions:
-            name = decision.shop.name
-            if name == prev_shop:
-                continue
-            if name in visited:
-                return False
-            visited.add(name)
-            prev_shop = name
-        return True
+        travel_decisions = self._schedule.travel_decisions
+        shop_names = [decision.route.shop_to for decision in travel_decisions]
+        return len(set(shop_names)) == len(travel_decisions)
 
 class TravelFormsValidTour(ScheduleChecker):
     def check(self) -> bool:
