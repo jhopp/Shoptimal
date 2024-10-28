@@ -28,11 +28,17 @@ class Shop:
         return None
 
     def available_products(self) -> set[str]:
+        """
+        Returns a set containing all products available at this shop.
+        """
         in_price_dict = set(self.price_by_product.keys())
         in_stock_dict = set(self.stock_by_product.keys())
         return in_price_dict.intersection(in_stock_dict)
 
     def euclidian_distance(self, other) -> float:
+        """
+        Returns the euclidian distance between another shop and this shop.
+        """
         (x1, y1) = self.location
         (x2, y2) = other.location if type(other) == Shop else other
         return sqrt((pow(x1 - x2, 2) + pow(y1 - y2, 2)))

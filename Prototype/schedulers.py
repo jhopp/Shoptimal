@@ -81,6 +81,9 @@ class BestPriceScheduler(Scheduler):
         return Schedule(self._input_data.origin,decisions)
 
 class ModelScheduler(Scheduler):
+    """
+    Base scheduler class for schedulers using a DOcplex model.
+    """
     def model_schedule(self, model) -> Schedule:
         msol = model.solve()
 
@@ -134,7 +137,7 @@ class ModelScheduler(Scheduler):
 
 class Model1Scheduler(ModelScheduler):
     """
-    Schedules using simple_model.
+    Schedules using model1.
     """ 
     def schedule(self, kpi_cost=1, kpi_distance=1) -> Schedule:
         model = model1(self._input_data, kpi_cost, kpi_distance)
